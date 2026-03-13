@@ -14,8 +14,24 @@ A Claude Code [skill](https://docs.anthropic.com/en/docs/claude-code/skills) tha
 
 ## Install
 
+### Using `npx skills` (third-party CLI)
+
 ```bash
 npx skills add tw93/claude-health
+```
+
+> **Note:** `npx skills` installs to `.agents/skills/`, but Claude Code reads skills from `.claude/skills/`. You may need to move the files manually after installation:
+> ```bash
+> mkdir -p .claude/skills && cp -r .agents/skills/health .claude/skills/health
+> ```
+
+### Manual install (recommended)
+
+```bash
+# Clone into the correct Claude Code skills directory
+mkdir -p .claude/skills/health
+curl -fsSL https://raw.githubusercontent.com/tw93/claude-health/main/skills/health/SKILL.md \
+  -o .claude/skills/health/SKILL.md
 ```
 
 ## Usage
