@@ -1,0 +1,19 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "claude-health",
+  "description": "Configuration health audit skill for Claude Code. Systematically audits CLAUDE.md, rules, skills, hooks, subagents, and verifiers across four parallel agents.",
+  "owner": {
+    "name": "tw93",
+    "email": "piao.zhuchao@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "health",
+      "description": "Audit Claude Code configuration health across all layers (CLAUDE.md, rules, skills, hooks, MCP). Run periodically or when collaboration feels off.",
+      "version": "1.3.0",
+      "category": "development",
+      "source": "./skills/health",
+      "homepage": "https://github.com/tw93/claude-health"
+    }
+  ]
+}

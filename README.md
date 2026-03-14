@@ -14,8 +14,17 @@ A Claude Code skill that systematically reviews your project's setup using the s
 
 ## Install
 
+**npx skills(Recommended):**
+
 ```bash
 npx skills add tw93/claude-health
+```
+
+**Claude Plugin:**
+
+```bash
+claude plugin marketplace add tw93/claude-health
+claude plugin install health
 ```
 
 ## Usage

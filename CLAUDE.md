@@ -16,9 +16,10 @@ grep -Pzo '```bash\n([\s\S]*?)```' skills/health/SKILL.md | bash -n
 # Word count: SKILL.md should stay under 3000 words
 wc -w skills/health/SKILL.md
 
-# Version consistency: frontmatter version must match VER variable
+# Version consistency: frontmatter version, VER variable and marketplace.json must match
 grep 'version:' skills/health/SKILL.md | head -1
 grep 'VER=' skills/health/SKILL.md
+grep '"version"' .claude-plugin/marketplace.json
 ```
 
 ## Commit Convention
