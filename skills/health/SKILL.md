@@ -40,7 +40,7 @@ echo "=== TIER METRICS ==="
 echo "source_files: $(find "$P" -type f \( -name "*.rs" -o -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" -o -name "*.py" -o -name "*.go" -o -name "*.lua" -o -name "*.swift" -o -name "*.rb" -o -name "*.java" -o -name "*.kt" -o -name "*.cs" -o -name "*.cpp" -o -name "*.c" \) -not -path "*/.git/*" -not -path "*/node_modules/*" | wc -l)"
 echo "contributors: $(git -C "$P" log --format='%ae' 2>/dev/null | sort -u | wc -l)"
 echo "ci_workflows:  $(ls "$P/.github/workflows/"*.yml "$P/.github/workflows/"*.yaml 2>/dev/null | wc -l)"
-echo "skills:        $(find "$P/.claude/skills" ~/.claude/skills -name "SKILL.md" 2>/dev/null | wc -l)"
+echo "skills:        $(find "$P/.claude/skills" -name "SKILL.md" 2>/dev/null | wc -l)"
 echo "claude_md_lines: $(wc -l < "$P/CLAUDE.md" 2>/dev/null)"
 
 echo "=== CLAUDE.md (global) ===" ; cat ~/.claude/CLAUDE.md 2>/dev/null || echo "(none)"
@@ -91,8 +91,9 @@ fi
 
 ```bash
 P=$(pwd)
-# Exclude self from audit -- a diagnostic tool should not evaluate itself, see issue #2
-SELF_SKILL="health/SKILL.md"
+# Exclude self by frontmatter name field -- stable across install paths
+SELF_SKILL=$(grep -rl '^name: health$' "$P/.claude/skills" "$HOME/.claude/skills" 2>/dev/null | grep 'SKILL.md' | head -1)
+[ -z "$SELF_SKILL" ] && SELF_SKILL="health/SKILL.md"
 
 echo "=== SKILL INVENTORY ==="
 for DIR in "$P/.claude/skills" "$HOME/.claude/skills"; do
@@ -308,29 +309,21 @@ Subagents hygiene STANDARD+:
 
 ## Part B: Behavior Pattern Audit
 
-Analyze actual behavior against stated rules:
+Data source: up to 3 recent conversation files. Confidence is limited -- only flag patterns with clear evidence. Mark each finding with [HIGH CONFIDENCE] if seen in multiple files, [LOW CONFIDENCE] if seen in only one file or inferred from partial data.
 
-1. Rules violated: Find cases where CLAUDE.md says NEVER/ALWAYS but Claude did the opposite. Quote both the rule and the violation.
-2. Repeated corrections: Find cases where the user corrected Claude's behavior more than once on the same issue. These are candidates for stronger rules.
+1. Rules violated: Find cases where CLAUDE.md says NEVER/ALWAYS but Claude did the opposite. Quote both the rule and the violation. Only flag if directly observed, not inferred.
+2. Repeated corrections: Find cases where the user corrected Claude's behavior more than once on the same issue. Requires evidence in at least 2 conversations to flag as repeated.
 3. Missing local patterns: Find project-specific behaviors the user reinforced in conversation but that aren't in local CLAUDE.md.
 4. Missing global patterns: Find behaviors that would apply to any project that aren't in ~/.claude/CLAUDE.md.
-5. Skill frequency strategy STANDARD+: From conversation evidence, check actual skill invocation frequency:
-   - High frequency >1x/session: should keep auto-invoke, optimize description
-   - Low frequency <1x/session: should set disable-model-invocation: true
-   - Very low frequency <1x/month: consider removing skill, move to AGENTS.md docs
-6. Anti-patterns and context hygiene: Check for:
-   - CLAUDE.md used as wiki/documentation instead of executable rules
-   - Skills covering too many unrelated tasks
+5. Skill frequency STANDARD+: Only report frequency if skill invocations are directly visible in the conversation evidence. Do not infer monthly rates from fewer than 3 sessions -- mark as [INSUFFICIENT DATA] instead.
+6. Anti-patterns: Only flag what is directly observable in the sample:
    - Claude declaring done without running verification
-   - Subagents used without tool/permission constraints
    - User re-explaining same context across sessions -- missing HANDOFF.md or memory
    - Long sessions over 20 turns without /compact or /clear
-   - Task switches within session without /clear -- context pollution
-   - Same architectural decisions re-discussed -- use CLAUDE.md or memory
 
 Output: bullet points only, two sections:
 [CONTROL LAYER: hooks issues | allowedTools to remove | cache hygiene | three-layer gaps | verification gaps | subagents issues]
-[BEHAVIOR: rules violated | repeated corrections | add to local CLAUDE.md | add to global CLAUDE.md | skill frequency | anti-patterns]
+[BEHAVIOR: rules violated | repeated corrections | add to local CLAUDE.md | add to global CLAUDE.md | skill frequency | anti-patterns -- each finding tagged with confidence level]
 ```
 
 Paste conversation content inline into Agent 2; do not pass file paths.
