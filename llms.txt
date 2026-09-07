@@ -2,7 +2,6 @@
 
 > Eight focused engineering skills for AI coding agents: think, ui, check, hunt, write, learn, read, and health.
 
-Official product page: https://faberon.io/projects/waza
 Source code: https://github.com/tw93/Waza
 npm package: https://www.npmjs.com/package/@tw93/waza
 Latest release: https://github.com/tw93/Waza/releases/latest
